@@ -1,0 +1,14 @@
+﻿@model BookStore.Models.Book
+
+<h1>@Model.VolumeInfo.Title</h1>
+<img src="@Model.VolumeInfo.ImageLinks.Thumbnail" alt="@Model.VolumeInfo.Title" style="max-width: 300px;" />
+<p>@Model.VolumeInfo.Description</p>
+<p>By: @Model.VolumeInfo.Authors</p>
+<p>Language: @Model.VolumeInfo.Language</p>
+<p>Price: $@Model.VolumeInfo.Price</p>
+<p>Published: @Model.VolumeInfo.PublishedDate</p>
+
+<form method="post" action="/Cart/AddToCart">
+    <input type="hidden" name="bookId" value="@Model.Id" />
+    <button type="submit" class="btn btn-primary">Add to Cart</button>
+</form>

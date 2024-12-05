@@ -1,0 +1,24 @@
+﻿@model IEnumerable<BookStore.Models.CartItem>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <!-- Access the Title and Price through VolumeInfo -->
+                <td>@item.Book.VolumeInfo.Title</td>
+                <td>@item.Quantity</td>
+                <td>@item.Book.VolumeInfo.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Checkout" class="btn btn-primary">Checkout</a>
