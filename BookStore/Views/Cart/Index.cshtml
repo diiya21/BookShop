@@ -1,24 +1,221 @@
 ﻿@model IEnumerable<BookStore.Models.CartItem>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Quantity</th>
-            <th>Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <!-- Access the Title and Price through VolumeInfo -->
-                <td>@item.Book.VolumeInfo.Title</td>
-                <td>@item.Quantity</td>
-                <td>@item.Book.VolumeInfo.Price</td>
-            </tr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Books Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f3f1;
+            margin: 0;
+            padding: 20px;
         }
-    </tbody>
-</table>
 
-<a href="/Checkout" class="btn btn-primary">Checkout</a>
+        h1 {
+            text-align: center;
+            color: #5b3a29;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+            table th, table td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: center;
+            }
+
+            table th {
+                background-color: #8b5a2b;
+                color: white;
+            }
+
+        .total {
+            text-align: right;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: #5b3a29;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+            .btn:hover {
+                background-color: #8b5a2b;
+            }
+
+        .quantity-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .quantity-controls button {
+                background-color: #8b5a2b;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 5px;
+                margin: 0 5px;
+                cursor: pointer;
+            }
+
+            .quantity-controls input {
+                width: 40px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+                padding: 5px;
+            }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Books Cart</h1>
+
+    <div id="cart-container">
+        @if (Model.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row-@item.Book.Id">
+                            <td>@item.Book.VolumeInfo.Title</td>
+                            <td>@item.Book.SaleInfo.ListPrice.Amount CAD</td>
+                            <td class="quantity-controls">
+                                <button class="btn" onclick="decrementQuantity('@item.Book.Id')">-</button>
+                                <input type="text" id="quantity-@item.Book.Id" value="@item.Quantity" readonly />
+                                <button class="btn" onclick="incrementQuantity('@item.Book.Id')">+</button>
+                            </td>
+                            <td id="subtotal-@item.Book.Id">
+                                @String.Format("{0:F2}", item.Quantity * item.Book.SaleInfo.ListPrice.Amount) CAD
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="total">
+                Total: $<span id="total">@ViewBag.TotalPrice</span>
+            </div>
+        }
+        else
+        {
+            <p>Your cart is empty.</p>
+        }
+    </div>
+
+    <div class="actions">
+        <a href="/Home" class="btn">Continue Shopping</a>
+        <button class="btn" onclick="checkoutCart()">Checkout</button>
+    </div>
+
+    <script>
+        // Function to update subtotal when quantity changes
+        function updateSubtotal(bookId) {
+            const quantityInput = document.getElementById(`quantity-${bookId}`);
+            const quantity = parseInt(quantityInput.value);
+            const price = parseFloat(document.querySelector(`#row-${bookId} td:nth-child(2)`).innerText.split(" ")[0]);
+            const subtotalElement = document.getElementById(`subtotal-${bookId}`);
+            const rowElement = document.getElementById(`row-${bookId}`);
+
+            if (quantity <= 0) {
+                // Remove the row if quantity is 0
+                rowElement.remove();
+            } else {
+                // Update the subtotal
+                const newSubtotal = (quantity * price).toFixed(2);
+                subtotalElement.innerText = `${newSubtotal} CAD`;
+            }
+
+            // Update total price
+            updateTotal();
+        }
+
+        // Function to increment quantity
+        function incrementQuantity(bookId) {
+            const quantityInput = document.getElementById(`quantity-${bookId}`);
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+            updateSubtotal(bookId);
+        }
+
+        // Function to decrement quantity
+        function decrementQuantity(bookId) {
+            const quantityInput = document.getElementById(`quantity-${bookId}`);
+            const newQuantity = Math.max(0, parseInt(quantityInput.value) - 1);
+            quantityInput.value = newQuantity;
+            updateSubtotal(bookId);
+        }
+
+        // Function to update total price
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('td[id^="subtotal-"]').forEach(subtotalElement => {
+                const subtotalText = subtotalElement.innerText.split(" ")[0];
+                total += parseFloat(subtotalText);
+            });
+            document.getElementById("total").innerText = total.toFixed(2);
+        }
+
+        function checkoutCart() {
+            // Send a POST request to the backend to clear the cart
+            fetch('/Cart/Checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Clear cart visually
+                        const cartContainer = document.getElementById("cart-container");
+                        cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+
+                        // Display success message
+                        alert("Checkout Successful!");
+
+                        // Clear total price display
+                        document.getElementById("total").innerText = "0.00";
+                    } else {
+                        // Handle errors if the checkout fails
+                        response.text().then(errorMessage => {
+                            console.error('Error during checkout:', errorMessage);
+                            alert("Checkout failed: " + errorMessage);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error during checkout:', error);
+                    alert("A network error occurred. Please check your connection and try again.");
+                });
+        }
+
+    </script>
+</body>
+</html>

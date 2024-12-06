@@ -1,10 +1,7 @@
-// Ensure these using statements are at the top of your file
-using Microsoft.EntityFrameworkCore;
-using BookStore.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using System;
 using BookStore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,13 +9,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Register the BookService to fetch books from Google Books API
-builder.Services.AddHttpClient<BookService>(); // Add BookService for API calls
+// Register the BookService with HttpClient for API calls.
+builder.Services.AddHttpClient<BookService>(client =>
+{
+    client.BaseAddress = new Uri("https://www.googleapis.com/books/v1/");
+    client.Timeout = TimeSpan.FromSeconds(30); // Set timeout to handle delays.
+});
 
-// Add session support
-builder.Services.AddSession();
+// Add session support.
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+    options.Cookie.HttpOnly = true; // Make cookie inaccessible to client-side scripts
+    options.Cookie.IsEssential = true; // Essential for GDPR compliance
+});
 
-// Add Swagger services (optional)
+// Add Swagger for API documentation (optional for development purposes).
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -27,8 +33,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-
-    // Enable Swagger for development
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore API v1"));
 }
@@ -38,13 +42,17 @@ else
     app.UseHsts();
 }
 
-app.UseStaticFiles();  // For serving static files (like images, CSS)
-app.UseSession();      // Enables session support
-app.UseRouting();      // Enables routing for your app
+// Middleware pipeline
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseAuthorization(); // Handles authorization if necessary
+app.UseRouting();
 
-// Define the default route for the application
+app.UseSession(); // Enable session support
+
+app.UseAuthorization();
+
+// Default route mapping
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
