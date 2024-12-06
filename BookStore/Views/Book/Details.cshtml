@@ -1,14 +1,115 @@
 ﻿@model BookStore.Models.Book
 
-<h1>@Model.VolumeInfo.Title</h1>
-<img src="@Model.VolumeInfo.ImageLinks.Thumbnail" alt="@Model.VolumeInfo.Title" style="max-width: 300px;" />
-<p>@Model.VolumeInfo.Description</p>
-<p>By: @Model.VolumeInfo.Authors</p>
-<p>Language: @Model.VolumeInfo.Language</p>
-<p>Price: $@Model.VolumeInfo.Price</p>
-<p>Published: @Model.VolumeInfo.PublishedDate</p>
+@{
+    ViewData["Title"] = "Book Details";
+}
 
-<form method="post" action="/Cart/AddToCart">
-    <input type="hidden" name="bookId" value="@Model.Id" />
-    <button type="submit" class="btn btn-primary">Add to Cart</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f1e1;
+            color: #4e3629;
+        }
+
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 3em;
+            text-align: center;
+            color: #3d2a1f;
+            margin-bottom: 20px;
+        }
+
+        .book-details {
+            width: 80%;
+            margin: auto;
+            background-color: #d6c1a1;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .book-img {
+            width: 300px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .book-title {
+            font-weight: bold;
+            font-size: 24px;
+            color: #3d2a1f;
+        }
+
+        .book-author {
+            font-size: 18px;
+            color: #5e4429;
+        }
+
+        .book-description {
+            font-size: 14px;
+            color: #5e4429;
+        }
+
+        .btn {
+            background-color: #8e5c34;
+            color: white;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #5a3d23;
+        }
+
+        .quantity-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-btn {
+            background-color: #8e5c34;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .quantity-btn:hover {
+            background-color: #5a3d23;
+        }
+    </style>
+</head>
+<body>
+    <h1>BookShop</h1>
+
+    <div class="book-details">
+        <img src="@Model.VolumeInfo.ImageLinks.Thumbnail" class="book-img" alt="@Model.VolumeInfo.Title" />
+        <h2 class="book-title">@Model.VolumeInfo.Title</h2>
+        <p class="book-author">By: @string.Join(", ", Model.VolumeInfo.Authors)</p>
+        <p class="book-description">@Model.VolumeInfo.Description</p>
+        <p><strong>Price:</strong> $@Model.VolumeInfo.Price</p>
+        <p><strong>Published:</strong> @Model.VolumeInfo.PublishedDate</p>
+
+        <div class="quantity-buttons">
+            <button class="quantity-btn">-</button>
+            <input type="number" value="1" min="1" class="quantity-input" />
+            <button class="quantity-btn">+</button>
+        </div>
+
+        <form method="post" action="/Cart/AddToCart">
+            <input type="hidden" name="bookId" value="@Model.Id" />
+            <button type="submit" class="btn">Add to Cart</button>
+        </form>
+    </div>
+</body>
+</html>

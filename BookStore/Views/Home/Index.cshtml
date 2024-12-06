@@ -1,5 +1,9 @@
 ﻿@model IEnumerable<BookStore.Models.Book>
 
+@{
+    ViewData["Title"] = "Home Page";
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,128 +11,111 @@
     <title>@ViewData["Title"]</title>
 
     <style>
-        /* Base Styles for the page */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5; /* Light gray background */
-            color: #333;
-            margin: 0;
-            padding: 0;
+            background-color: #f4f1e1;
+            color: #4e3629;
         }
 
-        /* Header styling */
-        .header {
-            background-color: #6d4c41; /* Subtle brown color */
-            color: white;
-            padding: 20px;
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 3em;
             text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            color: #3d2a1f;
+            margin-bottom: 20px;
         }
 
-        /* Grid Layout for books using Flexbox */
         .book-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Four columns per row */
             gap: 20px;
-            padding: 20px;
-            margin-top: 30px;
-            justify-content: center;
+            margin-top: 20px;
+            padding: 0 10%;
         }
 
-        /* Book card styling */
         .book-card {
-            background-color: #ffffff; /* White card background */
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out;
-            width: 100%; /* Ensure cards take full width of their container */
-            max-width: 250px; /* Limit the width to avoid oversized cards */
-        }
-
-        /* Add hover effect for book cards */
-        .book-card:hover {
-            transform: translateY(-10px);
-        }
-
-        /* Styling for the image */
-        .book-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-
-        .card-body {
+            background-color: #d6c1a1;
+            border-radius: 10px;
             padding: 15px;
+            height: 100%;
         }
 
-        /* Styling for the book title, author, price */
         .book-title {
-            font-size: 20px;
             font-weight: bold;
-            color: #6d4c41; /* Dark brown color for title */
-        }
-
-        .book-author {
-            font-size: 16px;
-            color: #8d6e63; /* Lighter brown for author */
-            margin-top: 5px;
-        }
-
-        .book-price {
             font-size: 18px;
-            color: #6d4c41; /* Dark brown color for price */
-            margin-top: 10px;
+            color: #3d2a1f;
         }
 
         .book-description {
             font-size: 14px;
-            color: #777;
-            margin-top: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: #5e4429;
         }
 
-        /* Button styling */
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
         .btn {
-            background-color: #6d4c41; /* Dark brown button */
+            background-color: #8e5c34;
             color: white;
-            padding: 10px 20px;
+            padding: 8px;
             border: none;
             border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #5a3d23;
+        }
+
+        .search-container {
             text-align: center;
-            display: inline-block;
-            text-decoration: none;
-            margin-top: 10px;
+        }
+
+        .search-input {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #d1a15d;
+        }
+
+        .book-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         }
     </style>
 </head>
 <body>
+    <h1>BookShop</h1>
 
-    <!-- Header section for the app -->
-    <div class="header">
-        BookShop
+    <div class="search-container">
+        <form method="get" action="/Home/Index">
+            <input type="text" name="query" class="search-input" placeholder="Search for books..." />
+            <button type="submit" class="btn">Search</button>
+        </form>
     </div>
 
-    <!-- Book Grid section -->
     <div class="book-grid">
         @foreach (var book in Model)
         {
             <div class="book-card">
-                <!-- Book Image -->
-                <img src="@book.VolumeInfo.ImageLinks?.Thumbnail ?? 'https://via.placeholder.com/150'" class="card-img-top" alt="@book.VolumeInfo.Title" />
+                @if (book.VolumeInfo?.ImageLinks?.Thumbnail != null)
+                {
+                    <img src="@book.VolumeInfo.ImageLinks.Thumbnail" class="card-img-top" alt="@book.VolumeInfo.Title" />
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="No image available" />
+                }
 
                 <div class="card-body">
                     <h5 class="book-title">@book.VolumeInfo.Title</h5>
-                    <p class="book-author">By: @string.Join(", ", book.VolumeInfo.Authors)</p>
-                    <p class="book-price">$@book.VolumeInfo.Price</p>
-                    <p class="book-description">@book.VolumeInfo.Description</p>
-
-                    <!-- Link to the Details Page -->
-                    <a class="btn" asp-action="Details" asp-route-id="@book.Id">View Details</a>
+                    <p class="book-description">By: @string.Join(", ", book.VolumeInfo?.Authors ?? new string[] { "Unknown Author" })</p>
+                    <p><strong>Price:</strong> $@book.VolumeInfo.Price</p>
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn">View Details</a>
                 </div>
             </div>
         }

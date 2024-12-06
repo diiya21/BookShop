@@ -2,6 +2,7 @@
 using BookStore.Models;
 using BookStore.Services;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace BookStore.Controllers
 {
@@ -23,24 +24,15 @@ namespace BookStore.Controllers
         }
 
         // Example of a Details action to display individual book info
-        public IActionResult Details(int id)
+        public IActionResult Details(string id)
         {
-            var book = new Book
+            var books = _bookService.GetBooksAsync("fiction").Result; // Fetch books asynchronously
+            var book = books.FirstOrDefault(b => b.Id == id); // Find the book by ID
+
+            if (book == null)
             {
-                VolumeInfo = new VolumeInfo
-                {
-                    Title = "Sample Book",
-                    Authors = new[] { "Sample Author" },
-                    Description = "Sample book description.",
-                    Language = "English",
-                    Price = "19.99",
-                    PublishedDate = "2024-01-01",
-                    ImageLinks = new ImageLinks
-                    {
-                        Thumbnail = "https://example.com/sample-image.jpg"
-                    }
-                }
-            };
+                return NotFound(); // Return 404 if no book is found with the given ID
+            }
 
             return View(book); // Return single book view
         }

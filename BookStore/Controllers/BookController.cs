@@ -20,26 +20,17 @@ namespace BookStore.Controllers
             return View(books); // Pass books to the view
         }
 
-        public IActionResult Details(int id)
+        public IActionResult Details(string id)
         {
-            // Assuming you get the book using the id (you might fetch this from the API or database)
-            var book = new Book
+            var books = _bookService.GetBooksAsync("fiction").Result;
+            var book = books.FirstOrDefault(b => b.Id == id); // Find the book by ID
+
+            if (book == null)
             {
-                VolumeInfo = new VolumeInfo
-                {
-                    Title = "Sample Book",
-                    Authors = new[] { "Sample Author" },
-                    Description = "Sample book description.",
-                    Language = "English",
-                    Price = "19.99",
-                    PublishedDate = "2024-01-01",
-                    ImageLinks = new ImageLinks
-                    {
-                        Thumbnail = "https://example.com/sample-image.jpg"
-                    }
-                }
-            };
-            return View(book);
+                return NotFound();
+            }
+
+            return View(book); // Pass the book to the view for displaying details
         }
     }
 }

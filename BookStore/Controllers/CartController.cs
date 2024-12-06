@@ -8,36 +8,28 @@ namespace BookStore.Controllers
     {
         private readonly BookShopDBContext _context;
 
-        // Inject BookShopDBContext into the controller
         public CartController(BookShopDBContext context)
         {
             _context = context;
         }
 
-        // GET: Cart
-        public IActionResult Index()
-        {
-            var cartItems = _context.CartItems.ToList();  // Get cart items from the database
-            return View(cartItems);  // Pass cart items to the view
-        }
-
         // POST: Add book to cart
         [HttpPost]
-        public IActionResult AddToCart(string bookId)  // Change bookId to string
+        public IActionResult AddToCart(string bookId, int quantity)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == bookId);  // Fetch book from the database
-            if (book == null) return NotFound();  // Return 404 if the book is not found
+            var book = _context.Books.FirstOrDefault(b => b.Id == bookId); // Fetch book by ID
+            if (book == null) return NotFound(); // Return 404 if the book is not found
 
             var cartItem = new CartItem
             {
-                Book = book, // Set the book to the cart item
-                Quantity = 1  // Default quantity
+                Book = book,
+                Quantity = quantity
             };
 
-            _context.CartItems.Add(cartItem);  // Add cart item to the database
-            _context.SaveChanges();  // Save changes to the database
+            _context.CartItems.Add(cartItem); // Add to cart
+            _context.SaveChanges(); // Save changes
 
-            return RedirectToAction("Index", "Cart");  // Redirect to the cart view
+            return RedirectToAction("Index", "Cart"); // Redirect to cart
         }
     }
 }

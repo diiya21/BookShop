@@ -1,7 +1,7 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using BookStore.Models;
+﻿using BookStore.Models;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace BookStore.Services
 {
@@ -14,15 +14,13 @@ namespace BookStore.Services
             _httpClient = httpClient;
         }
 
-        // Fetch books from Google Books API using a query
         public async Task<Book[]> GetBooksAsync(string query)
         {
-            string apiUrl = $"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=40"; // API URL
-
+            var apiUrl = $"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=40"; // API URL
             var response = await _httpClient.GetStringAsync(apiUrl); // Get data from API
             var booksResponse = JsonConvert.DeserializeObject<GoogleBooksResponse>(response); // Deserialize JSON response
 
-            return booksResponse.Items; // Return the books
+            return booksResponse.Items; // Return list of books
         }
     }
 
