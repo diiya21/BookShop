@@ -1,7 +1,8 @@
 ﻿using BookStore.Services;
 using BookStore.Models;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BookStore.Controllers
 {
@@ -14,26 +15,25 @@ namespace BookStore.Controllers
             _bookService = bookService;
         }
 
-        // Fetch books based on the search query and display them
-        public IActionResult Index(string query = "fiction") // Default search query: 'fiction'
+        public async Task<IActionResult> Index(string query = "fiction")
         {
-            var books = _bookService.GetBooksAsync(query).Result; // Get books using the service
-            ViewData["SearchQuery"] = query; // Save the search query for the search box
-            return View(books); // Pass books data as IEnumerable<BookStore.Models.Book>
+            var books = await _bookService.GetBooksAsync(query);
+            ViewData["SearchQuery"] = query;
+            return View(books);
         }
 
-        // Example of a Details action to display individual book info
-        public IActionResult Details(string id)
+        public async Task<IActionResult> Details(string id)
         {
-            var books = _bookService.GetBooksAsync("fiction").Result;
-            var book = books.FirstOrDefault(b => b.Id == id); // Find the book by ID
+            var books = await _bookService.GetBooksAsync("fiction");
+            var book = books.FirstOrDefault(b => b.Id == id);
 
             if (book == null)
             {
-                return NotFound(); // Return 404 if the book is not found
+                return NotFound();
             }
 
-            return View(book); // Pass the book to the view for displaying details
+            return View(book);
         }
     }
 }
+

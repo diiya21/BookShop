@@ -7,131 +7,114 @@
     <title>@ViewData["Title"]</title>
 
     <style>
-        /* Base Styles for the page */
+        /* Base Styles */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5; /* Light gray background */
+            background-color: #f5f5f5;
             color: #333;
             margin: 0;
             padding: 0;
         }
 
-        /* Header styling */
         .header {
-            background-color: #6d4c41; /* Subtle brown color */
+            background-color: #6d4c41;
             color: white;
             padding: 20px;
             text-align: center;
             font-size: 32px;
             font-weight: bold;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Grid Layout for books using Flexbox */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            background-color: #6d4c41;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .nav-button:hover {
+                background-color: #5a3a33;
+            }
+
         .book-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             padding: 20px;
-            margin-top: 30px;
             justify-content: center;
         }
 
-        /* Book card styling */
         .book-card {
-            background-color: #ffffff; /* White card background */
+            background-color: white;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out;
-            width: 100%; /* Ensure cards take full width of their container */
-            max-width: 250px; /* Limit the width to avoid oversized cards */
+            max-width: 250px;
         }
 
-        /* Add hover effect for book cards */
-        .book-card:hover {
-            transform: translateY(-10px);
-        }
-
-        /* Styling for the image */
-        .book-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
+            .book-card img {
+                width: 100%;
+                height: 250px;
+                object-fit: cover;
+            }
 
         .card-body {
             padding: 15px;
         }
 
-        /* Styling for the book title, author, price */
         .book-title {
             font-size: 20px;
-            font-weight: bold;
-            color: #6d4c41; /* Dark brown color for title */
+            color: #6d4c41;
         }
 
-        .book-author {
-            font-size: 16px;
-            color: #8d6e63; /* Lighter brown for author */
-            margin-top: 5px;
-        }
-
-        .book-price {
-            font-size: 18px;
-            color: #6d4c41; /* Dark brown color for price */
-            margin-top: 10px;
-        }
-
-        .book-description {
-            font-size: 14px;
-            color: #777;
-            margin-top: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        /* Button styling */
         .btn {
-            background-color: #6d4c41; /* Dark brown button */
+            background-color: #6d4c41;
             color: white;
             padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            text-align: center;
-            display: inline-block;
             text-decoration: none;
-            margin-top: 10px;
+            border-radius: 5px;
         }
+
+            .btn:hover {
+                background-color: #5a3a33;
+            }
     </style>
 </head>
 <body>
-
-    <!-- Header section for the app -->
     <div class="header">
         BookShop
     </div>
 
-    <!-- Book Grid section -->
+    <div class="nav-buttons">
+        <a href="/Home" class="nav-button">Home</a>
+        <a href="/Cart" class="nav-button">Cart</a>
+    </div>
+
     <div class="book-grid">
         @foreach (var book in Model)
         {
             <div class="book-card">
-                <!-- Book Image -->
-                <img src="@book.VolumeInfo.ImageLinks?.Thumbnail ?? 'https://via.placeholder.com/150'" class="card-img-top" alt="@book.VolumeInfo.Title" />
-
+                <img src="@book.VolumeInfo.ImageLinks?.Thumbnail ?? " https://via.placeholder.com/150""
+                     alt="@book.VolumeInfo.Title" />
                 <div class="card-body">
                     <h5 class="book-title">@book.VolumeInfo.Title</h5>
-                    <p class="book-author">By: @string.Join(", ", book.VolumeInfo.Authors)</p>
-                    <p class="book-price">$@book.VolumeInfo.Price</p>
-                    <p class="book-description">@book.VolumeInfo.Description</p>
-
-                    <!-- Link to the Details Page -->
-                    <a class="btn" asp-action="Details" asp-route-id="@book.Id">View Details</a>
+                    <p>By: @string.Join(", ", book.VolumeInfo.Authors ?? new string[] { "Unknown" })</p>
+                    <p>Price: @((book.SaleInfo?.ListPrice?.Amount ?? 0).ToString("C"))</p>
+                    <a class="btn" href="@Url.Action("Details", "Book", new { id = book.Id })">View Details</a>
                 </div>
             </div>
         }
     </div>
 </body>
 </html>
+

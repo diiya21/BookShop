@@ -1,35 +1,113 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BookStore.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BookStore.Controllers
 {
     public class CartController : Controller
     {
-        private readonly BookShopDBContext _context;
+        private static List<CartItem> CartItems = new List<CartItem>(); // In-memory cart storage
 
-        public CartController(BookShopDBContext context)
+        // Display the Cart Page
+        public IActionResult Index()
         {
-            _context = context;
+            // Calculate the total price of the cart
+            decimal totalPrice = CartItems.Sum(item => (item.Book.SaleInfo?.ListPrice?.Amount ?? 0) * item.Quantity);
+
+            // Pass total price and items to the view
+            ViewBag.TotalPrice = totalPrice.ToString("F2");
+            ViewBag.CartItems = CartItems; // Pass CartItems explicitly if needed
+            return View(CartItems);
         }
 
-        // POST: Add book to cart
+        // Add a Book to the Cart or Update Quantity
         [HttpPost]
-        public IActionResult AddToCart(string bookId, int quantity)
+        public IActionResult AddToCart(string bookId, string title, decimal? price)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == bookId); // Fetch book by ID
-            if (book == null) return NotFound(); // Return 404 if the book is not found
+            if (string.IsNullOrEmpty(bookId) || string.IsNullOrEmpty(title))
+                return RedirectToAction("Index", "Home");
 
-            var cartItem = new CartItem
+            var cartItem = CartItems.FirstOrDefault(item => item.Book.Id == bookId);
+
+            if (cartItem != null)
             {
-                Book = book,
-                Quantity = quantity
-            };
+                // Increment quantity if the book already exists
+                cartItem.Quantity++;
+            }
+            else
+            {
+                // Add a new book to the cart
+                CartItems.Add(new CartItem
+                {
+                    Book = new Book
+                    {
+                        Id = bookId,
+                        VolumeInfo = new VolumeInfo { Title = title },
+                        SaleInfo = new SaleInfo
+                        {
+                            ListPrice = price.HasValue ? new ListPrice { Amount = price.Value } : null
+                        }
+                    },
+                    Quantity = 1
+                });
+            }
 
-            _context.CartItems.Add(cartItem); // Add to cart
-            _context.SaveChanges(); // Save changes
+            return RedirectToAction("Index");
+        }
 
-            return RedirectToAction("Index", "Cart"); // Redirect to cart
+        // Increment Quantity
+        [HttpPost]
+        public IActionResult IncrementQuantity(string bookId)
+        {
+            // Find the book in the cart
+            var cartItem = CartItems.FirstOrDefault(item => item.Book.Id == bookId);
+            if (cartItem != null)
+            {
+                // Increment the quantity
+                cartItem.Quantity++;
+            }
+            return RedirectToAction("Index");
+        }
+
+        // Decrement Quantity
+        [HttpPost]
+        public IActionResult DecrementQuantity(string bookId)
+        {
+            // Find the book in the cart
+            var cartItem = CartItems.FirstOrDefault(item => item.Book.Id == bookId);
+            if (cartItem != null)
+            {
+                // Decrement the quantity
+                cartItem.Quantity--;
+                // Remove the item if quantity is 0
+                if (cartItem.Quantity <= 0)
+                {
+                    CartItems.Remove(cartItem);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        // Checkout and Clear the Cart
+        [HttpPost]
+        public IActionResult Checkout()
+        {
+            // Clear the cart
+            CartItems.Clear();
+            TempData["Message"] = "Thank you for your purchase!";
+
+            // Return to Index (Cart page)
+            return RedirectToAction("Index");
+        }
+
+        // Reset the Cart (optional method for debugging or development)
+        public IActionResult ResetCart()
+        {
+            CartItems.Clear();
+            TempData["Message"] = "Cart has been reset.";
+            return RedirectToAction("Index");
         }
     }
 }
+
