@@ -1,4 +1,4 @@
-﻿using BookStore.Services; // Add this namespace to resolve the BookService class
+﻿using BookStore.Services;
 using BookStore.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +14,15 @@ namespace BookStore.Controllers
             _bookService = bookService;
         }
 
-        public IActionResult Index()
+        // Fetch books based on the search query and display them
+        public IActionResult Index(string query = "fiction") // Default search query: 'fiction'
         {
-            var books = _bookService.GetBooksAsync("fiction").Result; // Call the service to get books
-            return View(books); // Pass books to the view
+            var books = _bookService.GetBooksAsync(query).Result; // Get books using the service
+            ViewData["SearchQuery"] = query; // Save the search query for the search box
+            return View(books); // Pass books data as IEnumerable<BookStore.Models.Book>
         }
 
+        // Details page for a specific book
         public IActionResult Details(string id)
         {
             var books = _bookService.GetBooksAsync("fiction").Result;
@@ -27,10 +30,10 @@ namespace BookStore.Controllers
 
             if (book == null)
             {
-                return NotFound();
+                return NotFound(); // Return 404 if the book is not found
             }
 
-            return View(book); // Pass the book to the view for displaying details
+            return View(book); // Return the book details view
         }
     }
 }
