@@ -324,6 +324,7 @@ C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Microsoft.Identit
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Microsoft.OpenApi.dll
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -381,4 +382,3 @@ C:\Users\HP\Downloads\c++\BookStore\BookStore\obj\Debug\net6.0\refint\BookStore.
 C:\Users\HP\Downloads\c++\BookStore\BookStore\obj\Debug\net6.0\BookStore.pdb
 C:\Users\HP\Downloads\c++\BookStore\BookStore\obj\Debug\net6.0\BookStore.genruntimeconfig.cache
 C:\Users\HP\Downloads\c++\BookStore\BookStore\obj\Debug\net6.0\ref\BookStore.dll
-C:\Users\HP\Downloads\c++\BookStore\BookStore\bin\Debug\net6.0\Newtonsoft.Json.dll
